@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">Space Arcade</string>
+    <string name="title_activity_main">Space Arcade</string>
+    <string name="game_title">Space Arcade - Go as far as you can</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="start_game">Start</string>
+    <string name="stop_game">Stop</string>
+    <string name="pause_game">Pause</string>
+    <string name="resume_game">Resume</string>
+    <string name="pause_screen_title">Pause</string>
+    <string name="pause_screen_message">Game is paused</string>
 </resources>
