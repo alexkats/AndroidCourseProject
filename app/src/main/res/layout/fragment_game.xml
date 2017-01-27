@@ -1,26 +1,81 @@
-<?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
+        android:background="@color/background"
         tools:context="ru.ifmo.ctddev.spacearcade.counter.GameFragment"
-        tools:ignore="RtlHardcoded,RtlSymmetry">
+        tools:ignore="RtlHardcoded">
 
-    <ru.ifmo.ctddev.spacearcade.model.SurfaceGameView
-            android:id="@+id/view_game"
+    <RelativeLayout
+            android:layout_width="@dimen/game_menu_width"
+            android:layout_height="match_parent">
+
+        <TextView
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:layout_marginLeft="@dimen/menu_margin"
+                android:id="@+id/score_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:textColor="@color/text_color"
+                android:text="@string/score" />
+
+        <TextView
+                android:id="@+id/score_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/menu_margin"
+                android:layout_below="@+id/score_title"
+                android:layout_alignLeft="@+id/score_title"
+                android:textColor="@color/text_color"
+                android:text="000000" />
+
+        <TextView
+                android:layout_marginTop="@dimen/activity_vertical_margin"
+                android:id="@+id/lives_title"
+                android:layout_below="@+id/score_value"
+                android:layout_alignLeft="@+id/score_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_color"
+                android:text="@string/lives" />
+
+        <LinearLayout
+                android:orientation="horizontal"
+                android:id="@+id/lives_value"
+                android:layout_marginTop="@dimen/menu_margin"
+                android:layout_below="@+id/lives_title"
+                android:layout_alignLeft="@+id/lives_title"
+                android:layout_width="@dimen/game_menu_width"
+                android:layout_height="wrap_content" />
+    </RelativeLayout>
+
+    <FrameLayout
+            android:background="@drawable/game_view_bg"
+            android:layout_weight="1"
+            android:layout_marginLeft="@dimen/game_menu_width"
+            android:layout_marginRight="@dimen/game_menu_width"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="match_parent">
 
-    <Button
+        <ru.ifmo.ctddev.spacearcade.model.SurfaceGameView
+                android:id="@+id/view_game"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+    </FrameLayout>
+
+    <include
+            layout="@layout/view_vjoystick"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent" />
+
+    <ImageView
+            style="@style/iconButton"
             android:layout_gravity="top|right"
             android:id="@+id/btn_play_pause"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:layout_marginRight="@dimen/activity_horizontal_margin"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/pause_game" />
-
-    <include layout="@layout/view_vjoystick" />
+            android:layout_marginTop="@dimen/menu_margin"
+            android:layout_marginRight="@dimen/menu_margin"
+            android:src="@drawable/pause" />
 
 </FrameLayout>

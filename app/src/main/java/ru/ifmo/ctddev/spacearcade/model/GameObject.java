@@ -2,6 +2,8 @@ package ru.ifmo.ctddev.spacearcade.model;
 
 import android.graphics.Canvas;
 
+import ru.ifmo.ctddev.spacearcade.sound.GameEvent;
+
 /**
  * @author Andrey Chernyshov
  * @since 25.01.17
@@ -23,7 +25,7 @@ public abstract class GameObject {
     };
     public int layer;
 
-    public abstract void startGame();
+    public abstract void startGame(GameEngine gameEngine);
 
     public abstract void onDraw(Canvas canvas);
 
@@ -53,5 +55,9 @@ public abstract class GameObject {
     }
 
     public void onRemovedFromGameEngine() {
+    }
+
+    public void onGameEvent(GameEvent gameEvent) {
+
     }
 }

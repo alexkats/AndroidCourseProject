@@ -15,7 +15,9 @@ import java.util.List;
 
 public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callback, GameView {
 
-    private List<List<GameObject>> layers;
+    private Iterable<List<GameObject>> layers;
+
+    @SuppressWarnings("BooleanVariableAlwaysNegated")
     private boolean ready;
 
     public SurfaceGameView(Context context) {
@@ -64,7 +66,7 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         canvas.drawRGB(0, 0, 0);
 
         synchronized (layers) {
-            for (List<GameObject> layer : layers) {
+            for (Iterable<GameObject> layer : layers) {
                 for (GameObject gameObject : layer) {
                     gameObject.onDraw(canvas);
                 }

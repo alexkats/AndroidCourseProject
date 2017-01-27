@@ -3,7 +3,6 @@ package ru.ifmo.ctddev.spacearcade.move;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
-import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
@@ -16,9 +15,6 @@ import ru.ifmo.ctddev.spacearcade.model.GameObject;
  */
 
 public class ParallaxBackground extends GameObject {
-
-    private final Rect srcRect = new Rect();
-    private final Rect dstRect = new Rect();
 
     private final double imageHeight;
     private final Bitmap bitmap;
@@ -33,6 +29,7 @@ public class ParallaxBackground extends GameObject {
     protected double positionY;
 
     public ParallaxBackground(GameEngine gameEngine, int speed, int drawableResId) {
+        //noinspection deprecation
         Drawable spriteDrawable = gameEngine.getContext().getResources().getDrawable(drawableResId);
         bitmap = ((BitmapDrawable) spriteDrawable).getBitmap();
 
@@ -44,7 +41,7 @@ public class ParallaxBackground extends GameObject {
     }
 
     @Override
-    public void startGame() {
+    public void startGame(GameEngine gameEngine) {
 
     }
 

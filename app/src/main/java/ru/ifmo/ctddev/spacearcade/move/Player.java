@@ -5,18 +5,19 @@ import java.util.List;
 
 import ru.ifmo.ctddev.spacearcade.R;
 import ru.ifmo.ctddev.spacearcade.input.InputController;
+import ru.ifmo.ctddev.spacearcade.model.AnimatedSprite;
 import ru.ifmo.ctddev.spacearcade.model.BodyType;
 import ru.ifmo.ctddev.spacearcade.model.GameEngine;
 import ru.ifmo.ctddev.spacearcade.model.ScreenGameObject;
-import ru.ifmo.ctddev.spacearcade.model.Sprite;
 import ru.ifmo.ctddev.spacearcade.model.particles.ParticleSystem;
+import ru.ifmo.ctddev.spacearcade.sound.GameEvent;
 
 /**
  * @author Alexey Katsman
  * @since 26.01.17
  */
 
-public class Player extends Sprite {
+public class Player extends AnimatedSprite {
 
     private static final int BULLET_POOL_SIZE = 6;
     private static final long TIME_BETWEEN_SHOTS_IN_MILLIS = 250;
@@ -35,7 +36,7 @@ public class Player extends Sprite {
     private long timeSinceLastFire;
 
     public Player(GameEngine gameEngine) {
-        super(gameEngine, R.drawable.space_ship, BodyType.Circular);
+        super(gameEngine, R.drawable.space_ship_animated, BodyType.CIRCULAR);
         speed = pixelFactor * 100.0d / 1000.0d;
         maxX = gameEngine.width - width;
         maxY = gameEngine.height - height;
@@ -69,15 +70,9 @@ public class Player extends Sprite {
     }
 
     @Override
-    public void startGame() {
+    public void startGame(GameEngine gameEngine) {
         x = maxX / 2.0d;
         y = maxY / 2.0d;
-    }
-
-    @Override
-    public void onUpdate(long elapsedMillis, GameEngine gameEngine) {
-        updatePosition(elapsedMillis, gameEngine.inputController);
-        checkFiring(elapsedMillis, gameEngine);
     }
 
     @Override
@@ -93,6 +88,13 @@ public class Player extends Sprite {
         engineFireParticle.removeFromGameEngine(gameEngine);
     }
 
+    @Override
+    public void onUpdate(long elapsedMillis, GameEngine gameEngine) {
+        super.onUpdate(elapsedMillis, gameEngine);
+        updatePosition(elapsedMillis, gameEngine.inputController);
+        checkFiring(elapsedMillis, gameEngine);
+    }
+
     private void checkFiring(long elapsedMillis, GameEngine gameEngine) {
         if (gameEngine.inputController.isFiringNow && timeSinceLastFire > TIME_BETWEEN_SHOTS_IN_MILLIS) {
             Bullet b = getBullet();
@@ -104,6 +106,7 @@ public class Player extends Sprite {
             b.init(this, x + width / 2.0d, y);
             b.addToGameEngine(gameEngine, 1);
             timeSinceLastFire = 0;
+            gameEngine.onGameEvent(GameEvent.LASER_FIRED);
         } else {
             timeSinceLastFire += elapsedMillis;
         }
@@ -137,15 +140,16 @@ public class Player extends Sprite {
         engineFireParticle.setPosition(x + width / 2.0d, y + height);
     }
 
+    @SuppressWarnings("RefusedBequest")
     @Override
     public void onCollision(GameEngine gameEngine, ScreenGameObject otherObject) {
         if (otherObject instanceof Asteroid) {
             removeFromGameEngine(gameEngine);
-            Asteroid a = (Asteroid) otherObject;
-            a.removeFromGameEngine(gameEngine);
+            otherObject.removeFromGameEngine(gameEngine);
             engineFireParticle.stopEmiting();
             explosionParticleSystem1.oneShot(gameEngine, x + width / 2.0d, y + width / 2.0d, EXPLOSION_PARTICLES);
             explosionParticleSystem2.oneShot(gameEngine, x + width / 2.0d, y + width / 2.0d, EXPLOSION_PARTICLES);
+            gameEngine.onGameEvent(GameEvent.SPACESHIP_HIT);
         }
     }
 }

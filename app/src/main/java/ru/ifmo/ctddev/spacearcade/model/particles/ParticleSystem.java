@@ -3,6 +3,7 @@ package ru.ifmo.ctddev.spacearcade.model.particles;
 import android.graphics.Canvas;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
@@ -17,7 +18,7 @@ import ru.ifmo.ctddev.spacearcade.model.ScreenGameObject;
 public class ParticleSystem extends ScreenGameObject {
 
     private final Random random;
-    private final List<ParticleModifier> modifiers;
+    private final Collection<ParticleModifier> modifiers;
     private final List<ParticleInitializer> initializers;
     private final long timeToLive;
 
@@ -84,7 +85,7 @@ public class ParticleSystem extends ScreenGameObject {
     }
 
     @Override
-    public void startGame() {
+    public void startGame(GameEngine gameEngine) {
 
     }
 
@@ -106,6 +107,17 @@ public class ParticleSystem extends ScreenGameObject {
         }
     }
 
+    private void activateParticle(GameEngine gameEngine) {
+        Particle p = particlePool.remove(0);
+
+        for (int i = 0; i < initializers.size(); i++) {
+            initializers.get(i).initParticle(p, random);
+        }
+
+        p.activate(gameEngine, timeToLive, x, y, modifiers, layer);
+        activatedParticles++;
+    }
+
     public void emit(int particlesPerSecond) {
         activatedParticles = 0;
         totalTimeInMillis = 0;
@@ -121,17 +133,6 @@ public class ParticleSystem extends ScreenGameObject {
         for (int i = 0; !particlePool.isEmpty() && i < numParticles; i++) {
             activateParticle(gameEngine);
         }
-    }
-
-    private void activateParticle(GameEngine gameEngine) {
-        Particle p = particlePool.remove(0);
-
-        for (int i = 0; i < initializers.size(); i++) {
-            initializers.get(i).initParticle(p, random);
-        }
-
-        p.activate(gameEngine, timeToLive, x, y, modifiers, layer);
-        activatedParticles++;
     }
 
     public void returnToPool(Particle particle) {

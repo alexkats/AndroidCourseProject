@@ -1,7 +1,5 @@
 package ru.ifmo.ctddev.spacearcade.model.particles;
 
-import java.util.List;
-
 import ru.ifmo.ctddev.spacearcade.model.BodyType;
 import ru.ifmo.ctddev.spacearcade.model.GameEngine;
 import ru.ifmo.ctddev.spacearcade.model.Sprite;
@@ -20,15 +18,15 @@ public class Particle extends Sprite {
     private long timeToLive;
     private long totalMillis;
 
-    private List<ParticleModifier> modifiers;
+    private Iterable<ParticleModifier> modifiers;
 
     protected Particle(ParticleSystem particleSystem, GameEngine gameEngine, int drawableRes) {
-        super(gameEngine, drawableRes, BodyType.None);
+        super(gameEngine, drawableRes, BodyType.NONE);
         this.particleSystem = particleSystem;
     }
 
     @Override
-    public void startGame() {
+    public void startGame(GameEngine gameEngine) {
 
     }
 
@@ -54,7 +52,7 @@ public class Particle extends Sprite {
         particleSystem.returnToPool(this);
     }
 
-    public void activate(GameEngine gameEngine, long timeToLive, double x, double y, List<ParticleModifier> modifiers, int layer) {
+    public void activate(GameEngine gameEngine, long timeToLive, double x, double y, Iterable<ParticleModifier> modifiers, int layer) {
         this.timeToLive = timeToLive;
         this.x = x - width / 2.0d;
         this.y = y - height / 2.0d;
