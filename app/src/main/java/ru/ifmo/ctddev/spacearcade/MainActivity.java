@@ -5,6 +5,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 
 import ru.ifmo.ctddev.spacearcade.counter.GameFragment;
@@ -19,6 +21,12 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG_FRAGMENT = "content";
 
+    private GamepadControllerListener gamepadControllerListener;
+
+    public void setGamepadControllerListener(GamepadControllerListener gamepadControllerListener) {
+        this.gamepadControllerListener = gamepadControllerListener;
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,16 +39,25 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (gamepadControllerListener != null && gamepadControllerListener.handleKeyEvent(event)) {
+            return true;
+        }
+
+        return super.dispatchKeyEvent(event);
+    }
+
+    public void startGame() {
+        goToFragment(new GameFragment());
+    }
+
     private void goToFragment(BaseFragment fragment) {
         getFragmentManager()
                 .beginTransaction()
                 .replace(R.id.container, fragment, TAG_FRAGMENT)
                 .addToBackStack(null)
                 .commit();
-    }
-
-    public void startGame() {
-        goToFragment(new GameFragment());
     }
 
     @Override
@@ -80,5 +97,14 @@ public class MainActivity extends AppCompatActivity {
                 decorView.setSystemUiVisibility(newFlags);
             }
         }
+    }
+
+    @Override
+    public boolean dispatchGenericMotionEvent(MotionEvent event) {
+        if (gamepadControllerListener != null && gamepadControllerListener.handleGenericMotionEvent(event)) {
+            return true;
+        }
+
+        return super.dispatchGenericMotionEvent(event);
     }
 }

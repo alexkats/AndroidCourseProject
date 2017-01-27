@@ -11,7 +11,7 @@ import ru.ifmo.ctddev.spacearcade.model.GameObject;
  * @since 25.01.17
  */
 
-public class ScoreGameObject implements GameObject {
+public class ScoreGameObject extends GameObject {
 
     private final TextView textView;
     private long totalTimeInMillis;
