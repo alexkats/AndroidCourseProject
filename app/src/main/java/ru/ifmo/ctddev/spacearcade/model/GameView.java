@@ -28,4 +28,6 @@ public interface GameView {
     int getPaddingBottom();
 
     Context getContext();
+
+    void postInvalidate();
 }

@@ -12,6 +12,7 @@ import ru.ifmo.ctddev.spacearcade.MainActivity;
  * @since 27.01.17
  */
 
+@SuppressWarnings("RefusedBequest")
 public class GamepadInputController extends InputController implements GamepadControllerListener {
 
     private final MainActivity activity;

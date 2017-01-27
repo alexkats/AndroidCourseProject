@@ -1,7 +1,8 @@
 <resources>
     <string name="app_name">Space Arcade</string>
     <string name="title_activity_main">Space Arcade</string>
-    <string name="game_title">Space Arcade - Go as far as you can</string>
+    <string name="game_title">Space Arcade</string>
+    <string name="game_subtitle">Go as far as you can</string>
     <string name="hello_world">Hello world!</string>
     <string name="start_game">Start</string>
     <string name="stop_game">Stop</string>
@@ -11,4 +12,13 @@
     <string name="pause_screen_message">Game is paused</string>
     <string name="gamepad_help_title">Gamepad controls</string>
     <string name="gamepad_help_message">Use the cursors/joystick to move the spaceship. Use A to fire.</string>
+    <string name="sound_on">Sound On</string>
+    <string name="music_on">Music On</string>
+    <string name="sound_off">Sound Off</string>
+    <string name="music_off">Music Off</string>
+    <string name="score">Score:</string>
+    <string name="lives">Lives:</string>
+    <string name="exit_confirm">Exit Game?</string>
+    <string name="game_over_title">Game Over</string>
+    <string name="game_over_message">Play Again?</string>
 </resources>

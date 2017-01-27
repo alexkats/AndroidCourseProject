@@ -21,14 +21,16 @@ public abstract class ScreenGameObject extends GameObject {
 
     }
 
+    @SuppressWarnings("RefusedBequest")
+    @Override
     public void onPostUpdate(GameEngine gameEngine) {
         boundingRect.set((int) x, (int) y, (int) x + width, (int) y + height);
     }
 
     public boolean checkCollision(ScreenGameObject otherObject) {
-        if (bodyType == BodyType.Circular && otherObject.bodyType == BodyType.Circular) {
+        if (bodyType == BodyType.CIRCULAR && otherObject.bodyType == BodyType.CIRCULAR) {
             return checkCircularCollision(otherObject);
-        } else if (bodyType == BodyType.Rectangular && otherObject.bodyType == BodyType.Rectangular) {
+        } else if (bodyType == BodyType.RECTANGULAR && otherObject.bodyType == BodyType.RECTANGULAR) {
             return checkRectangularCollision(otherObject);
         } else {
             return checkMixedCollision(otherObject);
@@ -38,7 +40,7 @@ public abstract class ScreenGameObject extends GameObject {
     private boolean checkMixedCollision(ScreenGameObject other) {
         ScreenGameObject circularSprite;
         ScreenGameObject rectangularSprite;
-        if (bodyType == BodyType.Rectangular) {
+        if (bodyType == BodyType.RECTANGULAR) {
             circularSprite = this;
             rectangularSprite = other;
         } else {

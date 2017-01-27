@@ -12,6 +12,8 @@ import java.util.Queue;
 import java.util.Random;
 
 import ru.ifmo.ctddev.spacearcade.input.InputController;
+import ru.ifmo.ctddev.spacearcade.sound.GameEvent;
+import ru.ifmo.ctddev.spacearcade.sound.SoundManager;
 
 /**
  * @author Andrey Chernyshov
@@ -35,6 +37,7 @@ public class GameEngine {
     public double pixelFactor;
     private UpdateThread updateThread;
     private DrawThread drawThread;
+    private SoundManager soundManager;
 
     public GameEngine(Activity activity, GameView gameView, int layersNum) {
         this.activity = activity;
@@ -57,11 +60,23 @@ public class GameEngine {
         this.inputController = inputController;
     }
 
+    public void setSoundManager(SoundManager soundManager) {
+        this.soundManager = soundManager;
+    }
+
+    public void onGameEvent(GameEvent gameEvent) {
+        for (GameObject gameObject : gameObjects) {
+            gameObject.onGameEvent(gameEvent);
+        }
+
+        soundManager.playSoundForGameEvent(gameEvent);
+    }
+
     public void startGame() {
         stopGame();
 
         for (GameObject gameObject : gameObjects) {
-            gameObject.startGame();
+            gameObject.startGame(this);
         }
 
         if (inputController != null) {
@@ -146,7 +161,7 @@ public class GameEngine {
         if (gameObject instanceof ScreenGameObject) {
             ScreenGameObject screenGameObject = (ScreenGameObject) gameObject;
 
-            if (screenGameObject.bodyType != BodyType.None) {
+            if (screenGameObject.bodyType != BodyType.NONE) {
                 quadTreeRoot.addGameObject(screenGameObject);
             }
         }

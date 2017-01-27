@@ -1,6 +1,9 @@
 package ru.ifmo.ctddev.spacearcade;
 
 import android.annotation.SuppressLint;
+import android.app.Fragment;
+import android.graphics.Typeface;
+import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -8,9 +11,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
 import ru.ifmo.ctddev.spacearcade.counter.GameFragment;
 import ru.ifmo.ctddev.spacearcade.counter.MainMenuFragment;
+import ru.ifmo.ctddev.spacearcade.sound.SoundManager;
 
 /**
  * @author Andrey Chernyshov
@@ -22,9 +28,15 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG_FRAGMENT = "content";
 
     private GamepadControllerListener gamepadControllerListener;
+    private SoundManager soundManager;
+    private Typeface customTypeface;
 
     public void setGamepadControllerListener(GamepadControllerListener gamepadControllerListener) {
         this.gamepadControllerListener = gamepadControllerListener;
+    }
+
+    public SoundManager getSoundManager() {
+        return soundManager;
     }
 
     @Override
@@ -37,6 +49,10 @@ public class MainActivity extends AppCompatActivity {
                     .add(R.id.container, new MainMenuFragment(), TAG_FRAGMENT)
                     .commit();
         }
+
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
+        soundManager = new SoundManager(getApplicationContext());
+        customTypeface = Typeface.createFromAsset(getAssets(), "ttf/Adore64.ttf");
     }
 
     @Override
@@ -52,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         goToFragment(new GameFragment());
     }
 
-    private void goToFragment(BaseFragment fragment) {
+    private void goToFragment(Fragment fragment) {
         getFragmentManager()
                 .beginTransaction()
                 .replace(R.id.container, fragment, TAG_FRAGMENT)
@@ -67,6 +83,18 @@ public class MainActivity extends AppCompatActivity {
         if (fragment == null || !fragment.onBackPressed()) {
             super.onBackPressed();
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        soundManager.pauseBgMusic();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        soundManager.resumeBgMusic();
     }
 
     public void goBack() {
@@ -106,5 +134,18 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.dispatchGenericMotionEvent(event);
+    }
+
+    public void applyTypeface(Object view) {
+        if (view instanceof ViewGroup) {
+            ViewGroup viewGroup = (ViewGroup) view;
+
+            for (int i = 0; i < viewGroup.getChildCount(); i++) {
+                applyTypeface(viewGroup.getChildAt(i));
+            }
+        } else if (view instanceof TextView) {
+            TextView tv = (TextView) view;
+            tv.setTypeface(customTypeface);
+        }
     }
 }

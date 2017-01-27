@@ -28,7 +28,7 @@ public class QuadTree {
         }
     }
 
-    private static boolean hasBeenDetected(List<Collision> detectedCollisions, Collision c) {
+    private static boolean hasBeenDetected(Iterable<Collision> detectedCollisions, Collision c) {
         for (Collision collision : detectedCollisions) {
             if (collision.equals(c)) {
                 return true;
@@ -42,7 +42,7 @@ public class QuadTree {
         this.area.set(area);
     }
 
-    public void checkObjects(List<ScreenGameObject> gameObjects) {
+    public void checkObjects(Iterable<ScreenGameObject> gameObjects) {
         this.gameObjects.clear();
 
         for (ScreenGameObject gameObject : gameObjects) {

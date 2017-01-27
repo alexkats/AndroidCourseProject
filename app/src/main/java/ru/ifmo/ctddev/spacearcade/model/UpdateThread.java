@@ -23,6 +23,7 @@ public class UpdateThread extends Thread {
         super.start();
     }
 
+    @SuppressWarnings("RefusedBequest")
     @Override
     public void run() {
         long currentTimeInMillis;

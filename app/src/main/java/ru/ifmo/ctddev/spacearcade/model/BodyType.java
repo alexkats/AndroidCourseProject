@@ -6,7 +6,7 @@ package ru.ifmo.ctddev.spacearcade.model;
  */
 
 public enum BodyType {
-    None,
-    Circular,
-    Rectangular
+    NONE,
+    CIRCULAR,
+    RECTANGULAR
 }

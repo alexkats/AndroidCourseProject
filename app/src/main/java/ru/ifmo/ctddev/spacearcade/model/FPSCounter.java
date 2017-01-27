@@ -29,7 +29,7 @@ public class FPSCounter extends GameObject {
     }
 
     @Override
-    public void startGame() {
+    public void startGame(GameEngine gameEngine) {
         totalMillis = 0;
     }
 
@@ -47,6 +47,7 @@ public class FPSCounter extends GameObject {
         totalMillis += elapsedMillis;
 
         if (totalMillis > 1000) {
+            @SuppressWarnings("IntegerDivisionInFloatingPointContext")
             float fps = draws * 1000 / totalMillis;
             fpsText = fps + " fps";
             totalMillis = 0;

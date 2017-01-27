@@ -5,12 +5,14 @@ import ru.ifmo.ctddev.spacearcade.model.BodyType;
 import ru.ifmo.ctddev.spacearcade.model.GameEngine;
 import ru.ifmo.ctddev.spacearcade.model.ScreenGameObject;
 import ru.ifmo.ctddev.spacearcade.model.Sprite;
+import ru.ifmo.ctddev.spacearcade.sound.GameEvent;
 
 /**
  * @author Alexey Katsman
  * @since 26.01.17
  */
 
+@SuppressWarnings("RefusedBequest")
 public class Bullet extends Sprite {
 
     private final double speed;
@@ -18,18 +20,19 @@ public class Bullet extends Sprite {
     private Player owner;
 
     public Bullet(GameEngine gameEngine) {
-        super(gameEngine, R.drawable.bullet, BodyType.Rectangular);
+        super(gameEngine, R.drawable.bullet, BodyType.RECTANGULAR);
         speed = gameEngine.pixelFactor * -300.0d / 1000.0d;
     }
 
     @Override
-    public void startGame() {
+    public void startGame(GameEngine gameEngine) {
 
     }
 
     @Override
     public void onUpdate(long elapsedMillis, GameEngine gameEngine) {
         y += speed * elapsedMillis;
+
         if (y < -height) {
             removeFromGameEngine(gameEngine);
         }
@@ -53,6 +56,7 @@ public class Bullet extends Sprite {
             Asteroid a = (Asteroid) otherObject;
             a.explode(gameEngine);
             a.removeFromGameEngine(gameEngine);
+            gameEngine.onGameEvent(GameEvent.ASTEROID_HIT);
         }
     }
 }

@@ -23,6 +23,7 @@ public class DrawThread extends Thread {
         super.start();
     }
 
+    @SuppressWarnings("RefusedBequest")
     @Override
     public void run() {
         long elapsedTimeInMillis;
@@ -77,13 +78,5 @@ public class DrawThread extends Thread {
 
     public void pauseGame() {
         paused = true;
-    }
-
-    public boolean isGameRunning() {
-        return gameRunning;
-    }
-
-    public boolean isPaused() {
-        return paused;
     }
 }

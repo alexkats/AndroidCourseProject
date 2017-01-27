@@ -16,27 +16,33 @@ import android.graphics.drawable.Drawable;
 public abstract class Sprite extends ScreenGameObject {
 
     protected final double pixelFactor;
-    private final Bitmap bitmap;
+    protected final Drawable spriteDrawable;
     private final Matrix matrix = new Matrix();
     private final Paint paint = new Paint();
     public double rotation;
     public int alpha = 255;
     public double scale = 1;
+    protected Bitmap bitmap;
 
     protected Sprite(GameEngine gameEngine, int drawableRes, BodyType bodyType) {
         Resources r = gameEngine.getContext().getResources();
-        Drawable spriteDrawable = r.getDrawable(drawableRes);
+        //noinspection deprecation
+        spriteDrawable = r.getDrawable(drawableRes);
 
         pixelFactor = gameEngine.pixelFactor;
 
         height = (int) (spriteDrawable.getIntrinsicHeight() * pixelFactor);
         width = (int) (spriteDrawable.getIntrinsicWidth() * pixelFactor);
 
-        bitmap = ((BitmapDrawable) spriteDrawable).getBitmap();
+        bitmap = obtainDefaultBitmap();
 
         radius = Math.max(height, width) / 2.0d;
 
-        bodyType = bodyType;
+        this.bodyType = bodyType;
+    }
+
+    protected Bitmap obtainDefaultBitmap() {
+        return ((BitmapDrawable) spriteDrawable).getBitmap();
     }
 
     @Override

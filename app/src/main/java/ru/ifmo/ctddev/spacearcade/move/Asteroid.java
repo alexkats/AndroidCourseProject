@@ -6,6 +6,7 @@ import ru.ifmo.ctddev.spacearcade.model.GameEngine;
 import ru.ifmo.ctddev.spacearcade.model.Sprite;
 import ru.ifmo.ctddev.spacearcade.model.particles.ParticleSystem;
 import ru.ifmo.ctddev.spacearcade.model.particles.ScaleModifier;
+import ru.ifmo.ctddev.spacearcade.sound.GameEvent;
 
 /**
  * @author Alexey Katsman
@@ -26,7 +27,7 @@ public class Asteroid extends Sprite {
     private double rotationSpeed;
 
     public Asteroid(GameController gameController, GameEngine gameEngine) {
-        super(gameEngine, R.drawable.asteroid, BodyType.Circular);
+        super(gameEngine, R.drawable.asteroid, BodyType.CIRCULAR);
         speed = 200d * pixelFactor / 1000d;
         this.gameController = gameController;
 
@@ -42,7 +43,7 @@ public class Asteroid extends Sprite {
     }
 
     @Override
-    public void startGame() {
+    public void startGame(GameEngine gameEngine) {
 
     }
 
@@ -61,6 +62,7 @@ public class Asteroid extends Sprite {
         trailParticleSystem.setPosition(x + width / 2.0d, y + height / 2.0d);
 
         if (y > gameEngine.height) {
+            gameEngine.onGameEvent(GameEvent.ASTEROID_MISSED);
             removeFromGameEngine(gameEngine);
         }
     }
@@ -79,6 +81,7 @@ public class Asteroid extends Sprite {
         trailParticleSystem.removeFromGameEngine(gameEngine);
     }
 
+    @SuppressWarnings("RefusedBequest")
     @Override
     public void onRemovedFromGameEngine() {
         gameController.returnToPool(this);
