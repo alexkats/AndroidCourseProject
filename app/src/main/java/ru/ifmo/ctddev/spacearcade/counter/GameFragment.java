@@ -15,7 +15,11 @@ import ru.ifmo.ctddev.spacearcade.BaseFragment;
 import ru.ifmo.ctddev.spacearcade.MainActivity;
 import ru.ifmo.ctddev.spacearcade.R;
 import ru.ifmo.ctddev.spacearcade.input.CompositeInputController;
-import ru.ifmo.ctddev.spacearcade.model.GameController;
+import ru.ifmo.ctddev.spacearcade.model.FPSCounter;
+import ru.ifmo.ctddev.spacearcade.model.GameEngine;
+import ru.ifmo.ctddev.spacearcade.model.GameView;
+import ru.ifmo.ctddev.spacearcade.move.GameController;
+import ru.ifmo.ctddev.spacearcade.move.ParallaxBackground;
 import ru.ifmo.ctddev.spacearcade.move.Player;
 
 /**
@@ -25,7 +29,7 @@ import ru.ifmo.ctddev.spacearcade.move.Player;
 
 public class GameFragment extends BaseFragment implements InputManager.InputDeviceListener {
 
-    private GameController gameController;
+    private GameEngine gameEngine;
 
     @Nullable
     @Override
@@ -52,10 +56,14 @@ public class GameFragment extends BaseFragment implements InputManager.InputDevi
             @Override
             public void onGlobalLayout() {
                 viewTreeObserver.removeOnGlobalLayoutListener(this);
-                gameController = new GameController(getActivity());
-                gameController.setInputController(new CompositeInputController(getView(), getMainActivity()));
-                gameController.addGameObject(new Player(getView()));
-                gameController.startGame();
+                GameView gameView = (GameView) getView().findViewById(R.id.view_game);
+                gameEngine = new GameEngine(getActivity(), gameView, 4);
+                gameEngine.setInputController(new CompositeInputController(getView(), getMainActivity()));
+                new ParallaxBackground(gameEngine, 20, R.drawable.seamless_space).addToGameEngine(gameEngine, 0);
+                new GameController(gameEngine).addToGameEngine(gameEngine, 2);
+                new Player(gameEngine).addToGameEngine(gameEngine, 3);
+                new FPSCounter(gameEngine).addToGameEngine(gameEngine, 2);
+                gameEngine.startGame();
                 InputManager inputManager = (InputManager) getActivity().getSystemService(Context.INPUT_SERVICE);
                 inputManager.registerInputDeviceListener(GameFragment.this, null);
             }
@@ -66,7 +74,7 @@ public class GameFragment extends BaseFragment implements InputManager.InputDevi
     public void onPause() {
         super.onPause();
 
-        if (gameController.isGameRunning()) {
+        if (gameEngine.isGameRunning()) {
             pauseGameAndShowPauseScreen();
         }
     }
@@ -74,17 +82,17 @@ public class GameFragment extends BaseFragment implements InputManager.InputDevi
     @Override
     public void onDestroy() {
         super.onDestroy();
-        gameController.stopGame();
+        gameEngine.stopGame();
         InputManager inputManager = (InputManager) getActivity().getSystemService(Context.INPUT_SERVICE);
         inputManager.unregisterInputDeviceListener(this);
     }
 
     private void pauseGameAndShowPauseScreen() {
-        if (gameController.isGamePaused()) {
+        if (gameEngine.isGamePaused()) {
             return;
         }
 
-        gameController.pauseGame();
+        gameEngine.pauseGame();
 
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.pause_screen_title)
@@ -94,21 +102,21 @@ public class GameFragment extends BaseFragment implements InputManager.InputDevi
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
-                        gameController.resumeGame();
+                        gameEngine.resumeGame();
                     }
                 })
                 .setNegativeButton(R.string.stop_game, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
-                        gameController.stopGame();
+                        gameEngine.stopGame();
                         ((MainActivity) getActivity()).goBack();
                     }
                 })
                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                     @Override
                     public void onCancel(DialogInterface dialog) {
-                        gameController.resumeGame();
+                        gameEngine.resumeGame();
                     }
                 })
                 .create().show();
@@ -118,7 +126,7 @@ public class GameFragment extends BaseFragment implements InputManager.InputDevi
     public boolean onBackPressed() {
         boolean result = false;
 
-        if (gameController.isGameRunning()) {
+        if (gameEngine.isGameRunning()) {
             pauseGameAndShowPauseScreen();
             result = true;
         }
@@ -133,7 +141,7 @@ public class GameFragment extends BaseFragment implements InputManager.InputDevi
 
     @Override
     public void onInputDeviceRemoved(int deviceId) {
-        if (gameController.isGameRunning()) {
+        if (gameEngine.isGameRunning()) {
             pauseGameAndShowPauseScreen();
         }
     }

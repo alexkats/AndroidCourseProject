@@ -1,5 +1,7 @@
 package ru.ifmo.ctddev.spacearcade.model;
 
+import android.graphics.Canvas;
+
 /**
  * @author Andrey Chernyshov
  * @since 25.01.17
@@ -19,12 +21,13 @@ public abstract class GameObject {
             onGameObjectRemovedFromGameUIThread();
         }
     };
+    public int layer;
 
     public abstract void startGame();
 
-    public abstract void onDraw();
+    public abstract void onDraw(Canvas canvas);
 
-    public abstract void onUpdate(long elapsedTimeInMillis, GameController gameController);
+    public abstract void onUpdate(long elapsedTimeInMillis, GameEngine gameEngine);
 
     public void onGameObjectAddedToGameUIThread() {
 
@@ -32,5 +35,23 @@ public abstract class GameObject {
 
     public void onGameObjectRemovedFromGameUIThread() {
 
+    }
+
+    public void onPostUpdate(GameEngine gameEngine) {
+
+    }
+
+    public void addToGameEngine(GameEngine gameEngine, int layer) {
+        gameEngine.addGameObject(this, layer);
+    }
+
+    public void removeFromGameEngine(GameEngine gameEngine) {
+        gameEngine.removeGameObject(this);
+    }
+
+    public void onAddedToGameEngine() {
+    }
+
+    public void onRemovedFromGameEngine() {
     }
 }

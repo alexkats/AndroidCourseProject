@@ -4,22 +4,19 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:paddingTop="@dimen/activity_vertical_margin"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
         tools:context="ru.ifmo.ctddev.spacearcade.counter.GameFragment"
         tools:ignore="RtlHardcoded,RtlSymmetry">
 
-    <TextView
-            android:layout_gravity="top|left"
-            android:id="@+id/text_view_score"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/hello_world" />
+    <ru.ifmo.ctddev.spacearcade.model.SurfaceGameView
+            android:id="@+id/view_game"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
     <Button
             android:layout_gravity="top|right"
             android:id="@+id/btn_play_pause"
+            android:layout_marginTop="@dimen/activity_vertical_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/pause_game" />
