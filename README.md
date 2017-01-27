@@ -1,6 +1,6 @@
 # Space Arcade
 ### Basic idea
-This main idea of this game is to avoid meteorites or destroy them with your weapon.
+This main idea of this game is to avoid asteroids or destroy them with your weapon.
 
 #### Developers
 1. **Alexey Katsman** (aka [@alexkats](https://github.com/alexkats))
