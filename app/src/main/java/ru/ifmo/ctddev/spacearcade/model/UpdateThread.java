@@ -7,13 +7,13 @@ package ru.ifmo.ctddev.spacearcade.model;
 
 public class UpdateThread extends Thread {
 
-    private final GameController gameController;
+    private final GameEngine gameEngine;
     private final Object lock = new Object();
     private boolean gameRunning = true;
     private boolean paused;
 
-    public UpdateThread(GameController gameController) {
-        this.gameController = gameController;
+    public UpdateThread(GameEngine gameEngine) {
+        this.gameEngine = gameEngine;
     }
 
     @Override
@@ -23,7 +23,6 @@ public class UpdateThread extends Thread {
         super.start();
     }
 
-    @SuppressWarnings("RefusedBequest")
     @Override
     public void run() {
         long currentTimeInMillis;
@@ -48,7 +47,7 @@ public class UpdateThread extends Thread {
                 currentTimeInMillis = System.currentTimeMillis();
             }
 
-            gameController.onUpdate(elapsedTimeInMillis);
+            gameEngine.onUpdate(elapsedTimeInMillis);
             previousTimeInMillis = currentTimeInMillis;
         }
     }
@@ -76,7 +75,7 @@ public class UpdateThread extends Thread {
         return gameRunning;
     }
 
-    public boolean isGamePaused() {
+    public boolean isPaused() {
         return paused;
     }
 }

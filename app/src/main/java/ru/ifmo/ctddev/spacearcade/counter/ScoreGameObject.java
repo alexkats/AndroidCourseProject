@@ -1,9 +1,10 @@
 package ru.ifmo.ctddev.spacearcade.counter;
 
+import android.graphics.Canvas;
 import android.view.View;
 import android.widget.TextView;
 
-import ru.ifmo.ctddev.spacearcade.model.GameController;
+import ru.ifmo.ctddev.spacearcade.model.GameEngine;
 import ru.ifmo.ctddev.spacearcade.model.GameObject;
 
 /**
@@ -26,12 +27,12 @@ public class ScoreGameObject extends GameObject {
     }
 
     @Override
-    public void onDraw() {
+    public void onDraw(Canvas canvas) {
         textView.setText(String.valueOf(totalTimeInMillis));
     }
 
     @Override
-    public void onUpdate(long elapsedTimeInMillis, GameController gameController) {
+    public void onUpdate(long elapsedTimeInMillis, GameEngine gameEngine) {
         totalTimeInMillis += elapsedTimeInMillis;
     }
 }

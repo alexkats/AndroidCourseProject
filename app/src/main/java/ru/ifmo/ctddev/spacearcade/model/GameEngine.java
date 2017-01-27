@@ -1,11 +1,15 @@
 package ru.ifmo.ctddev.spacearcade.model;
 
 import android.app.Activity;
+import android.content.Context;
+import android.graphics.Rect;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
+import java.util.Random;
 
 import ru.ifmo.ctddev.spacearcade.input.InputController;
 
@@ -14,31 +18,39 @@ import ru.ifmo.ctddev.spacearcade.input.InputController;
  * @since 25.01.17
  */
 
-public class GameController {
+public class GameEngine {
 
+    public final Random random = new Random();
+    private final List<List<GameObject>> layers = new ArrayList<>();
     private final Collection<GameObject> gameObjects = new ArrayList<>();
-
+    private final List<Collision> detectedCollisions = new ArrayList<>();
+    private final QuadTree quadTreeRoot = new QuadTree();
     private final Queue<GameObject> gameObjectsAddQueue = new LinkedList<>();
     private final Queue<GameObject> gameObjectsRemoveQueue = new LinkedList<>();
-
+    private final GameView gameView;
     private final Activity activity;
-    private final Runnable drawRunnable = new Runnable() {
-
-        @Override
-        public void run() {
-            synchronized (gameObjects) {
-                for (GameObject gameObject : gameObjects) {
-                    gameObject.onDraw();
-                }
-            }
-        }
-    };
     public InputController inputController;
+    public int width;
+    public int height;
+    public double pixelFactor;
     private UpdateThread updateThread;
     private DrawThread drawThread;
 
-    public GameController(Activity activity) {
+    public GameEngine(Activity activity, GameView gameView, int layersNum) {
         this.activity = activity;
+        this.gameView = gameView;
+        this.gameView.setGameObjects(layers);
+        QuadTree.init();
+
+        width = gameView.getWidth() - gameView.getPaddingRight() - gameView.getPaddingLeft();
+        height = gameView.getHeight() - gameView.getPaddingTop() - gameView.getPaddingBottom();
+        pixelFactor = height / 400.0d;
+
+        quadTreeRoot.setArea(new Rect(0, 0, width, height));
+
+        for (int i = 0; i < layersNum; i++) {
+            layers.add(new ArrayList<GameObject>());
+        }
     }
 
     public void setInputController(InputController inputController) {
@@ -60,7 +72,7 @@ public class GameController {
         updateThread.start();
 
         drawThread = new DrawThread(this);
-        drawThread.startGame();
+        drawThread.start();
     }
 
     public void stopGame() {
@@ -105,11 +117,13 @@ public class GameController {
         }
     }
 
-    public void addGameObject(GameObject gameObject) {
+    public void addGameObject(GameObject gameObject, int layer) {
+        gameObject.layer = layer;
+
         if (isGameRunning()) {
             gameObjectsAddQueue.add(gameObject);
         } else {
-            gameObjects.add(gameObject);
+            addToLayerNow(gameObject);
         }
 
         activity.runOnUiThread(gameObject.onGameObjectAddedRunnable);
@@ -117,6 +131,27 @@ public class GameController {
 
     public boolean isGameRunning() {
         return updateThread != null && updateThread.isGameRunning();
+    }
+
+    private void addToLayerNow(GameObject gameObject) {
+        int layer = gameObject.layer;
+
+        while (layers.size() <= layer) {
+            layers.add(new ArrayList<GameObject>());
+        }
+
+        layers.get(layer).add(gameObject);
+        gameObjects.add(gameObject);
+
+        if (gameObject instanceof ScreenGameObject) {
+            ScreenGameObject screenGameObject = (ScreenGameObject) gameObject;
+
+            if (screenGameObject.bodyType != BodyType.None) {
+                quadTreeRoot.addGameObject(screenGameObject);
+            }
+        }
+
+        gameObject.onAddedToGameEngine();
     }
 
     public void removeGameObject(GameObject gameObject) {
@@ -131,24 +166,48 @@ public class GameController {
 
         for (GameObject gameObject : gameObjects) {
             gameObject.onUpdate(elapsedTimeInMillis, this);
+            gameObject.onPostUpdate(this);
         }
 
-        synchronized (gameObjects) {
+        checkCollisions();
+
+        synchronized (layers) {
             while (!gameObjectsRemoveQueue.isEmpty()) {
-                gameObjects.remove(gameObjectsRemoveQueue.poll());
+                GameObject gameObject = gameObjectsRemoveQueue.poll();
+                gameObjects.remove(gameObject);
+                layers.get(gameObject.layer).remove(gameObject);
+
+                if (gameObject instanceof ScreenGameObject) {
+                    quadTreeRoot.removeGameObject((ScreenGameObject) gameObject);
+                }
+
+                gameObject.onRemovedFromGameEngine();
             }
 
             while (!gameObjectsAddQueue.isEmpty()) {
-                gameObjects.add(gameObjectsAddQueue.poll());
+                GameObject gameObject = gameObjectsAddQueue.poll();
+                addToLayerNow(gameObject);
             }
         }
     }
 
+    private void checkCollisions() {
+        while (!detectedCollisions.isEmpty()) {
+            Collision.release(detectedCollisions.remove(0));
+        }
+
+        quadTreeRoot.checkCollisions(this, detectedCollisions);
+    }
+
     public void onDraw() {
-        activity.runOnUiThread(drawRunnable);
+        gameView.draw();
     }
 
     public boolean isGamePaused() {
-        return updateThread != null && updateThread.isGamePaused();
+        return updateThread != null && updateThread.isPaused();
+    }
+
+    public Context getContext() {
+        return gameView.getContext();
     }
 }

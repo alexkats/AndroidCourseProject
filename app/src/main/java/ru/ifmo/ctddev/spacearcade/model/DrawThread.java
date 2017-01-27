@@ -1,52 +1,89 @@
 package ru.ifmo.ctddev.spacearcade.model;
 
-import java.util.Timer;
-import java.util.TimerTask;
-
 /**
  * @author Andrey Chernyshov
  * @since 25.01.17
  */
 
-public class DrawThread {
+public class DrawThread extends Thread {
 
-    private static final int MIN_FPS = 30;
-    private static final long DRAW_PERIOD_IN_MILLIS = 1000 / MIN_FPS;
-    private static final long DELAY = 0;
+    private final GameEngine gameEngine;
+    private final Object lock = new Object();
+    private boolean gameRunning = true;
+    private boolean paused;
 
-    private final GameController gameController;
-    private Timer timer;
-
-    public DrawThread(GameController gameController) {
-        this.gameController = gameController;
+    public DrawThread(GameEngine gameEngine) {
+        this.gameEngine = gameEngine;
     }
 
-    public void startGame() {
-        stopGame();
-        timer = new Timer();
-        timer.schedule(new DrawTimerTask(), DELAY, DRAW_PERIOD_IN_MILLIS);
+    @Override
+    public void start() {
+        gameRunning = true;
+        paused = false;
+        super.start();
+    }
+
+    @Override
+    public void run() {
+        long elapsedTimeInMillis;
+        long currentTimeInMillis;
+        long previousTimeInMillis = System.currentTimeMillis();
+
+        while (gameRunning) {
+            currentTimeInMillis = System.currentTimeMillis();
+            elapsedTimeInMillis = currentTimeInMillis - previousTimeInMillis;
+
+            if (paused) {
+                while (paused) {
+                    try {
+                        synchronized (lock) {
+                            lock.wait();
+                        }
+                    } catch (InterruptedException ignored) {
+
+                    }
+                }
+
+                currentTimeInMillis = System.currentTimeMillis();
+            }
+
+            if (elapsedTimeInMillis < 20) {
+                try {
+                    Thread.sleep(20 - elapsedTimeInMillis);
+                } catch (InterruptedException ignored) {
+
+                }
+            }
+
+            gameEngine.onDraw();
+            previousTimeInMillis = currentTimeInMillis;
+        }
     }
 
     public void stopGame() {
-        if (timer != null) {
-            timer.cancel();
-            timer.purge();
-        }
+        gameRunning = false;
+        resumeGame();
     }
 
     public void resumeGame() {
-        startGame();
+        if (paused) {
+            paused = false;
+
+            synchronized (lock) {
+                lock.notify();
+            }
+        }
     }
 
     public void pauseGame() {
-        stopGame();
+        paused = true;
     }
 
-    private class DrawTimerTask extends TimerTask {
+    public boolean isGameRunning() {
+        return gameRunning;
+    }
 
-        @Override
-        public void run() {
-            gameController.onDraw();
-        }
+    public boolean isPaused() {
+        return paused;
     }
 }
