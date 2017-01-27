@@ -3,7 +3,11 @@ package ru.ifmo.ctddev.spacearcade.model;
 import android.app.Activity;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.Queue;
+
+import ru.ifmo.ctddev.spacearcade.input.InputController;
 
 /**
  * @author Andrey Chernyshov
@@ -12,24 +16,33 @@ import java.util.List;
 
 public class GameController {
 
-    private final List<GameObject> gameObjects = new ArrayList<>();
+    private final Collection<GameObject> gameObjects = new ArrayList<>();
+
+    private final Queue<GameObject> gameObjectsAddQueue = new LinkedList<>();
+    private final Queue<GameObject> gameObjectsRemoveQueue = new LinkedList<>();
+
     private final Activity activity;
-
-    private UpdateThread updateThread;
-    private DrawThread drawThread;
-
     private final Runnable drawRunnable = new Runnable() {
 
         @Override
         public void run() {
-            for (GameObject gameObject : gameObjects) {
-                gameObject.onDraw();
+            synchronized (gameObjects) {
+                for (GameObject gameObject : gameObjects) {
+                    gameObject.onDraw();
+                }
             }
         }
     };
+    public InputController inputController;
+    private UpdateThread updateThread;
+    private DrawThread drawThread;
 
     public GameController(Activity activity) {
         this.activity = activity;
+    }
+
+    public void setInputController(InputController inputController) {
+        this.inputController = inputController;
     }
 
     public void startGame() {
@@ -37,6 +50,10 @@ public class GameController {
 
         for (GameObject gameObject : gameObjects) {
             gameObject.startGame();
+        }
+
+        if (inputController != null) {
+            inputController.onStart();
         }
 
         updateThread = new UpdateThread(this);
@@ -54,6 +71,10 @@ public class GameController {
         if (drawThread != null) {
             drawThread.stopGame();
         }
+
+        if (inputController != null) {
+            inputController.onStop();
+        }
     }
 
     public void resumeGame() {
@@ -63,6 +84,10 @@ public class GameController {
 
         if (drawThread != null) {
             drawThread.resumeGame();
+        }
+
+        if (inputController != null) {
+            inputController.onResume();
         }
     }
 
@@ -74,28 +99,53 @@ public class GameController {
         if (drawThread != null) {
             drawThread.pauseGame();
         }
+
+        if (inputController != null) {
+            inputController.onPause();
+        }
     }
 
     public void addGameObject(GameObject gameObject) {
-        gameObjects.add(gameObject);
+        if (isGameRunning()) {
+            gameObjectsAddQueue.add(gameObject);
+        } else {
+            gameObjects.add(gameObject);
+        }
+
+        activity.runOnUiThread(gameObject.onGameObjectAddedRunnable);
+    }
+
+    public boolean isGameRunning() {
+        return updateThread != null && updateThread.isGameRunning();
     }
 
     public void removeGameObject(GameObject gameObject) {
-        gameObjects.remove(gameObject);
+        gameObjectsRemoveQueue.add(gameObject);
+        activity.runOnUiThread(gameObject.onGameObjectRemovedRunnable);
     }
 
     public void onUpdate(long elapsedTimeInMillis) {
+        if (inputController != null) {
+            inputController.onUpdate();
+        }
+
         for (GameObject gameObject : gameObjects) {
             gameObject.onUpdate(elapsedTimeInMillis, this);
+        }
+
+        synchronized (gameObjects) {
+            while (!gameObjectsRemoveQueue.isEmpty()) {
+                gameObjects.remove(gameObjectsRemoveQueue.poll());
+            }
+
+            while (!gameObjectsAddQueue.isEmpty()) {
+                gameObjects.add(gameObjectsAddQueue.poll());
+            }
         }
     }
 
     public void onDraw() {
         activity.runOnUiThread(drawRunnable);
-    }
-
-    public boolean isGameRunning() {
-        return updateThread != null && updateThread.isGameRunning();
     }
 
     public boolean isGamePaused() {

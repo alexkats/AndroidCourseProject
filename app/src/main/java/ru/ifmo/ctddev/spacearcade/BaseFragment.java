@@ -12,4 +12,8 @@ public class BaseFragment extends Fragment {
     public boolean onBackPressed() {
         return false;
     }
+
+    protected MainActivity getMainActivity() {
+        return (MainActivity) getActivity();
+    }
 }

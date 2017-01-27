@@ -9,4 +9,6 @@
     <string name="resume_game">Resume</string>
     <string name="pause_screen_title">Pause</string>
     <string name="pause_screen_message">Game is paused</string>
+    <string name="gamepad_help_title">Gamepad controls</string>
+    <string name="gamepad_help_message">Use the cursors/joystick to move the spaceship. Use A to fire.</string>
 </resources>

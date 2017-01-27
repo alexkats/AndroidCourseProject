@@ -1,25 +1,29 @@
 package ru.ifmo.ctddev.spacearcade.counter;
 
+import android.content.Context;
 import android.content.DialogInterface;
+import android.hardware.input.InputManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.view.ViewTreeObserver;
 
 import ru.ifmo.ctddev.spacearcade.BaseFragment;
 import ru.ifmo.ctddev.spacearcade.MainActivity;
 import ru.ifmo.ctddev.spacearcade.R;
+import ru.ifmo.ctddev.spacearcade.input.CompositeInputController;
 import ru.ifmo.ctddev.spacearcade.model.GameController;
+import ru.ifmo.ctddev.spacearcade.move.Player;
 
 /**
  * @author Andrey Chernyshov
  * @since 25.01.17
  */
 
-public class GameFragment extends BaseFragment {
+public class GameFragment extends BaseFragment implements InputManager.InputDeviceListener {
 
     private GameController gameController;
 
@@ -32,8 +36,6 @@ public class GameFragment extends BaseFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        gameController = new GameController(getActivity());
-        gameController.addGameObject(new ScoreGameObject(view, R.id.text_view_score));
 
         view.findViewById(R.id.btn_play_pause).setOnClickListener(new View.OnClickListener() {
 
@@ -45,7 +47,19 @@ public class GameFragment extends BaseFragment {
             }
         });
 
-        gameController.startGame();
+        final ViewTreeObserver viewTreeObserver = view.getViewTreeObserver();
+        viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                viewTreeObserver.removeOnGlobalLayoutListener(this);
+                gameController = new GameController(getActivity());
+                gameController.setInputController(new CompositeInputController(getView(), getMainActivity()));
+                gameController.addGameObject(new Player(getView()));
+                gameController.startGame();
+                InputManager inputManager = (InputManager) getActivity().getSystemService(Context.INPUT_SERVICE);
+                inputManager.registerInputDeviceListener(GameFragment.this, null);
+            }
+        });
     }
 
     @Override
@@ -61,21 +75,15 @@ public class GameFragment extends BaseFragment {
     public void onDestroy() {
         super.onDestroy();
         gameController.stopGame();
-    }
-
-    @Override
-    public boolean onBackPressed() {
-        boolean result = false;
-
-        if (gameController.isGameRunning()) {
-            pauseGameAndShowPauseScreen();
-            result = true;
-        }
-
-        return result;
+        InputManager inputManager = (InputManager) getActivity().getSystemService(Context.INPUT_SERVICE);
+        inputManager.unregisterInputDeviceListener(this);
     }
 
     private void pauseGameAndShowPauseScreen() {
+        if (gameController.isGamePaused()) {
+            return;
+        }
+
         gameController.pauseGame();
 
         new AlertDialog.Builder(getActivity())
@@ -106,19 +114,32 @@ public class GameFragment extends BaseFragment {
                 .create().show();
     }
 
-    private void playOrPause() {
-        View view = getView();
+    @Override
+    public boolean onBackPressed() {
+        boolean result = false;
 
-        if (view != null) {
-            Button button = (Button) view.findViewById(R.id.btn_play_pause);
-
-            if (gameController.isGamePaused()) {
-                gameController.resumeGame();
-                button.setText(R.string.pause_game);
-            } else {
-                gameController.pauseGame();
-                button.setText(R.string.resume_game);
-            }
+        if (gameController.isGameRunning()) {
+            pauseGameAndShowPauseScreen();
+            result = true;
         }
+
+        return result;
+    }
+
+    @Override
+    public void onInputDeviceAdded(int deviceId) {
+
+    }
+
+    @Override
+    public void onInputDeviceRemoved(int deviceId) {
+        if (gameController.isGameRunning()) {
+            pauseGameAndShowPauseScreen();
+        }
+    }
+
+    @Override
+    public void onInputDeviceChanged(int deviceId) {
+
     }
 }

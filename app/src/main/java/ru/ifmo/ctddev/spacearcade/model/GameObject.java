@@ -5,11 +5,32 @@ package ru.ifmo.ctddev.spacearcade.model;
  * @since 25.01.17
  */
 
-public interface GameObject {
+public abstract class GameObject {
 
-    void startGame();
+    public final Runnable onGameObjectAddedRunnable = new Runnable() {
+        @Override
+        public void run() {
+            onGameObjectAddedToGameUIThread();
+        }
+    };
+    public final Runnable onGameObjectRemovedRunnable = new Runnable() {
+        @Override
+        public void run() {
+            onGameObjectRemovedFromGameUIThread();
+        }
+    };
 
-    void onDraw();
+    public abstract void startGame();
 
-    void onUpdate(long elapsedTimeInMillis, GameController gameController);
+    public abstract void onDraw();
+
+    public abstract void onUpdate(long elapsedTimeInMillis, GameController gameController);
+
+    public void onGameObjectAddedToGameUIThread() {
+
+    }
+
+    public void onGameObjectRemovedFromGameUIThread() {
+
+    }
 }
