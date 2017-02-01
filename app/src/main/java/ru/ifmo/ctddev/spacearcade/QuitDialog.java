@@ -34,7 +34,7 @@ public class QuitDialog extends BaseDialog implements View.OnClickListener {
     @SuppressWarnings("RefusedBequest")
     @Override
     protected void onDismissed() {
-        if (selectedId == R.id.btn_exit) {
+        if (selectedId == R.id.btn_resume) {
             listener.exit();
         }
     }

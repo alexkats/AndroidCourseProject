@@ -58,7 +58,7 @@ public final class SoundManager {
         createSoundPool();
         //noinspection MapReplaceableByEnumMap
         soundsMap = new HashMap<>();
-        loadEventSound(context, GameEvent.ASTEROID_HIT, "Asteroid_explosion.wav");
+        loadEventSound(context, GameEvent.ASTEROID_HIT, "Asteroid_explosion_1.wav");
         loadEventSound(context, GameEvent.SPACESHIP_HIT, "Spaceship_explosion.wav");
         loadEventSound(context, GameEvent.LASER_FIRED, "Laser_shoot.wav");
     }
