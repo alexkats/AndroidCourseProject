@@ -8,4 +8,4 @@ Here is located some kind of basic development policy for developers of this gam
 4. Now you can start development process in your branch. When you are finished, create a pull request with name as in issue and description **Fixes #y**, where **y** is a issue number given by github. Alse move card to **Reviewing** area.
 5. After these steps you should wait for another developer to review your code and approve it. Once approved, you can merge your changes to **master** branch. After this issue and pull request would be closed automatically. Finally, you should move card to **Resolved** area.
 
-Please, keep in mind, that forced push to **master** is forbidden and only allowed to administrator in critical cases.
+Please, keep in mind, that forced push to **master** is forbidden.
