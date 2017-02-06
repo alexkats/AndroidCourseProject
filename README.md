@@ -1,6 +1,6 @@
 # Space Arcade
 ### Basic idea
-This main idea of this game is to avoid asteroids or destroy them with your weapon.
+The main idea of this game is to avoid asteroids or destroy them with your weapon.
 
 ### Gameplay
 This game is arcade. You can fly endlessly through space. Initially you have 3 lives. You lose your life when got hit by asteroid. Game is over when all 3 lives are over.
